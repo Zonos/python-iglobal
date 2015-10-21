@@ -21,7 +21,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     url='https://github.com/rkktateishi/python-iglobal',
-    description=' '.join(__import__('python-iglobal').__doc__.splitlines()).strip(),
+    description=' '.join(__import__('iglobal').__doc__.splitlines()).strip(),
     classifiers=[
         'Intended Audience :: Developers',
         'Programming Language :: Python',      
