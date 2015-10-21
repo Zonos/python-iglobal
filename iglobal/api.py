@@ -33,7 +33,7 @@ class API(object):
         if r.status_code == 200:
             return r.json()
         else:
-            return False
+            raise Exception("Bad Response: status code {}".format(r.status_code))
 
     def _convert_date(self, date):
         return date.strftime('%Y%m%d')
