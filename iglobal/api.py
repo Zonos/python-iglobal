@@ -1,7 +1,7 @@
 import requests
 
 
-class API(object):
+class iGlobalAPI(object):
     """
     API object to store and handle all requests through the iGlobal REST API,
     Refer to developer.iglobalstores.com/api/1.0/ for responses and expected data
