@@ -14,7 +14,7 @@ def read_file(filename):
 
 setup(
     name='python-iglobal',
-    version=__import__('python-iglobal').__version__,
+    version=__import__('iglobal').__version__,
     author='rkktateishi@gmail.com',
     author_email='rkktateishi@gmail.com',
     keywords='iglobal api',
