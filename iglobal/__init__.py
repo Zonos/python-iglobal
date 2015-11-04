@@ -1,3 +1,4 @@
-"Simple API to access iglobal REST"
+"Python wrapper for the iGlobalStores.com REST API."
 
-__version__ = '0.0.0'
+__version__ = '0.0.1'
+from .api import Api
