@@ -1,4 +1,5 @@
 import os
+import iglobal
 from setuptools import setup, find_packages
 
 
@@ -14,11 +15,11 @@ def read_file(filename):
 
 setup(
     name='python-iglobal',
-    version=__import__('iglobal').__version__,
+    version=iglobal.__version__,
     author='Ridley Larsen',
     author_email='ridley@iglobalstores.com',
     keywords='iglobal api',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests*']),
     include_package_data=True,
     url='https://github.com/RidleyLarsen/python-iglobal',
     description=' '.join(__import__('iglobal').__doc__.splitlines()).strip(),
