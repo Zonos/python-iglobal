@@ -21,7 +21,7 @@ setup(
     keywords='iglobal api',
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
-    url='https://github.com/RidleyLarsen/python-iglobal',
+    url='https://github.com/iGlobal/python-iglobal',
     description=' '.join(__import__('iglobal').__doc__.splitlines()).strip(),
     classifiers=[
         'Intended Audience :: Developers',
