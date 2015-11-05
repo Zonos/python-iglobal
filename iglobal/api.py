@@ -1,4 +1,6 @@
 import requests
+import six
+from decimal import Decimal
 from .exceptions import iGlobalException
 
 
@@ -23,19 +25,28 @@ class Api(object):
         '''
         if store_id is None or secret_key is None:
             raise iGlobalUnauthorizedException("iGlobal requires a Store ID and Secret Key to access the iGlobal REST API.")
-        self.store_id = store_id,
+        if not isinstance(store_id, six.integer_types):
+            raise iGlobalException("Error: store_id must be an integer.")
+        if not isinstance(secret_key, six.string_types):
+            raise iGlobalException("Error: secret_key must be a string.")
+
+        self.store_id = store_id
         self.secret_key = secret_key
         self.base_url = "https://api.iglobalstores.com/v1/{0}"
 
     def _callAPI(self, path, data):
         data.update('store', self.store_id)
         data.update('secret', self.secret_key)
-        r = requests.post(self.base_url.format(path), json=data)
+        response = requests.post(self.base_url.format(path), json=data)
 
-        if r.status_code == 200:
-            return r.json()
+        if response.status_code == 200:
+            return response.json()
         else:
-            raise iGlobalException("Bad Response: status code {0}".format(r.status_code))
+            raise iGlobalException(
+                "iGlobal API Error {0}: {1}".format(
+                    response.status_code, response.text
+                )
+            )
 
     def _convert_date(self, date):
         '''
@@ -44,7 +55,7 @@ class Api(object):
         return date.strftime('%Y%m%d')
 
     def all_orders(self):
-        return self.order_numbers(since_date='20150101')
+        return self.order_numbers(since_date='20000101')
 
     def order_numbers(self, since_order_id=None, since_date=None, through_date=None):
         '''
@@ -79,11 +90,27 @@ class Api(object):
         return self._callAPI('orderNumbers', data)
 
     def order_details(self, order_id=None, reference_id=None):
+        '''
+            Retrieves the order details and status of an Order completed via the
+            iGlobal Stores Checkout.
+
+            Args:
+                order_id (optional):
+                    The ID of the Order to be retrieved. If this argument is not
+                    provided, the order will be fetched using reference_id.
+                reference_id (optional):
+                    The reference to an Order's data passed in the
+                    createTempCart endpoint. This argument will be ignored if
+                    order_id is present.
+        '''
         data = {}
         if order_id:
             data['orderId'] = order_id
         elif reference_id:
-            data['referenceId'] = reference_id
+            if isinstance(reference_id, six.string_types):
+                data['referenceId'] = reference_id
+            else:
+                raise iGlobalException('reference_id must be a string.')
         else:
             raise iGlobalException('order_id or reference_id is required.')
 
@@ -95,11 +122,14 @@ class Api(object):
 
             Args:
                 order_id:
-                    The ID of the iGlobal order to update.
+                    The ID of the Order to be updated.
+                merchant_order_id:
+                    The new merchant order ID for the order to use.
         '''
         if order_id is None or merchant_order_id is None:
             raise iGlobalException('order_id and merchant_order_id are required.')
-
+        if not isinstance(merchant_order_id, six.string_types):
+            raise iGlobalException('merchant_order_id must be a string.')
         data = {
             'orderId': order_id,
             'merchantOrderId': merchant_order_id
@@ -107,6 +137,19 @@ class Api(object):
         return self._callAPI('updateMerchantOrderId', data)
 
     def update_vendor_order_status(self, order_id=None, status=None):
+        '''
+            Updates an Order's status in the iGlobalStores System.
+
+            Args:
+                order_id:
+                    The ID of the Order to be updated.
+                status:
+                    The new status of the Order.
+        '''
+        if order_id is None or status is None:
+            raise iGlobalException("order_id and status are required.")
+        if not isinstance(status, six.string_types):
+            raise iGlobalException("status must be a string.")
         data = {
             'orderId': order_id,
             'orderStatus': status
@@ -114,4 +157,38 @@ class Api(object):
         return self._callAPI('updateVendorOrderStatus', data)
 
     def create_temp_cart(self, data):
+        '''
+            Passes shopping cart details to the iGlobal Stores Checkout.
+            The response will contain a tempCartUUID.
+
+            Args:
+                data:
+                    A python dictionary containing the cart data.
+
+            Sample data (only inc. required fields):
+                data = {
+                    "items": [{"description": "test", "quantity": 1, "unitPrice": 1.00}]
+                }
+        '''
+        if not isinstance(data, dict):
+            raise iGlobalException("data must be a python dictionary object.")
+        else:
+            if not data.get('items'):
+                raise iGlobalException("data['items'] is required.")
+            elif not isinstance(data.get('items'), list):
+                raise iGlobalException("data['items'] must contain a list of objects.")
+            for item in data.get('items'):
+                if not isinstance(item, dict):
+                    raise iGlobalException("items must be python dictionary objects.")
+                if not item.get('description') or not item.get('quantity') or not item.get('unitPrice'):
+                    raise iGlobalException("description, quantity, and unitPrice are required for all items.")
+                if not isinstance(item.get('description'), six.string_types):
+                    raise iGlobalException("item description must be a string.")
+                if not isinstance(item.get('quantity'), six.integer_types):
+                    raise iGlobalException("item quantity must be an integer.")
+                if not isinstance(item.get('unitPrice'), Decimal):
+                    raise iGlobalException("item unit price must be a Decimal.")
+                    if item.get('unitPrice') != item.get('unitPrice').quantize(Decimal('0.00')):
+                        raise iGlobalException("item unit price must have two decimal points.")
+
         return self._callAPI('createTempCart', data)

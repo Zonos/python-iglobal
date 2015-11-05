@@ -7,5 +7,5 @@ class iGlobalException(Exception):
         return self.args[0]
 
 
-class iGlobalUnauthorizedException(iGlobalException)
+class iGlobalUnauthorizedException(iGlobalException):
     pass

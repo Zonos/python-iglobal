@@ -1,13 +1,14 @@
-# python-iglobal
-====================================
+Python iGlobal
 
-Welcome to the documentation for python-iglobal
+# Introduction
+This library provides a python interface for the iGlobalStores API.
 
-Basic Usage
------------------------------
 
+# Basic Usage
+
+```python
 	import iglobal
-	
+
 	api = iglobal.Api(store_id="<store_id>", secret_key="<secret_key>")
 
 	# Fetch all iGlobal international Order Numbers
@@ -19,4 +20,8 @@ Basic Usage
 	# Fetch Order Details of specific order
 	order = api.order_details(order_id='999-99999')
 
-All responses are decoded json while any none 200 response raises an exception.
+	# Update an Order with a new Merchant Order ID
+	response = api.update_merchant_order_id(order_id="123-1234", merchant_order_id="123456")
+```
+
+Responses are returned as Python dictionaries decoded from JSON. Non-200 response raises an exception.

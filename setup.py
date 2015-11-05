@@ -15,16 +15,16 @@ def read_file(filename):
 setup(
     name='python-iglobal',
     version=__import__('iglobal').__version__,
-    author='rkktateishi@gmail.com',
-    author_email='rkktateishi@gmail.com',
+    author='Ridley Larsen',
+    author_email='ridley@iglobalstores.com',
     keywords='iglobal api',
     packages=find_packages(),
     include_package_data=True,
-    url='https://github.com/rkktateishi/python-iglobal',
+    url='https://github.com/RidleyLarsen/python-iglobal',
     description=' '.join(__import__('iglobal').__doc__.splitlines()).strip(),
     classifiers=[
         'Intended Audience :: Developers',
-        'Programming Language :: Python',      
+        'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
@@ -37,5 +37,5 @@ setup(
     long_description=read_file('README.md'),
     test_suite="runtests.runtests",
     zip_safe=False,
-    install_requires=['requests']
+    install_requires=['requests', 'six']
 )
