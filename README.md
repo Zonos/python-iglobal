@@ -24,4 +24,12 @@ This library provides a python interface for the iGlobalStores API.
 	response = api.update_merchant_order_id(order_id="123-1234", merchant_order_id="123456")
 ```
 
-Responses are returned as Python dictionaries decoded from JSON. Non-200 response raises an exception.
+Responses are returned as Python namedtuples decoded from JSON. Non-200 responses from the API will raise an iGlobalException.
+
+# Testing
+
+To run the unit tests:
+
+```
+	python test.py
+```
