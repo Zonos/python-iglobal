@@ -1,7 +1,9 @@
+import json
 import requests
 import six
 from decimal import Decimal
-from .exceptions import iGlobalException
+from collections import namedtuple
+from .exceptions import iGlobalException, iGlobalUnauthorizedException
 
 
 class Api(object):
@@ -35,12 +37,12 @@ class Api(object):
         self.base_url = "https://api.iglobalstores.com/v1/{0}"
 
     def _callAPI(self, path, data):
-        data.update('store', self.store_id)
-        data.update('secret', self.secret_key)
+        data.update({'store': self.store_id})
+        data.update({'secret': self.secret_key})
         response = requests.post(self.base_url.format(path), json=data)
 
         if response.status_code == 200:
-            return response.json()
+            return response.content
         else:
             raise iGlobalException(
                 "iGlobal API Error {0}: {1}".format(
@@ -61,6 +63,8 @@ class Api(object):
         '''
             Fetch a sequence of order numbers in a date range, or all orders
             after a specific Order ID.
+
+            Returns a namedtuple containing an order count and list of orders.
 
             Args:
                 since_order_id:
@@ -87,12 +91,17 @@ class Api(object):
         else:
             raise iGlobalException('since_order_id or since_date is required.')
 
-        return self._callAPI('orderNumbers', data)
+        api_data = self._callAPI('orderNumbers', data)
+        products = json.loads(api_data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+
+        return products
 
     def order_details(self, order_id=None, reference_id=None):
         '''
             Retrieves the order details and status of an Order completed via the
             iGlobal Stores Checkout.
+
+            Returns a namedtuple with the order details.
 
             Args:
                 order_id (optional):
@@ -114,7 +123,10 @@ class Api(object):
         else:
             raise iGlobalException('order_id or reference_id is required.')
 
-        return self._callAPI('orderDetail', data)
+        api_data = self._callAPI('orderDetail', data)
+        product = json.loads(api_data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+
+        return product.order
 
     def update_merchant_order_id(self, order_id=None, merchant_order_id=None):
         '''
@@ -134,11 +146,15 @@ class Api(object):
             'orderId': order_id,
             'merchantOrderId': merchant_order_id
         }
-        return self._callAPI('updateMerchantOrderId', data)
+        api_data = self._callAPI('updateMerchantOrderId', data)
+        order = json.loads(api_data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+        return order
 
     def update_vendor_order_status(self, order_id=None, status=None):
         '''
             Updates an Order's status in the iGlobalStores System.
+
+            Returns order details (see order_details).
 
             Args:
                 order_id:
@@ -154,7 +170,9 @@ class Api(object):
             'orderId': order_id,
             'orderStatus': status
         }
-        return self._callAPI('updateVendorOrderStatus', data)
+        api_data = self._callAPI('updateVendorOrderStatus', data)
+        order = json.loads(api_data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+        return order
 
     def create_temp_cart(self, data):
         '''
