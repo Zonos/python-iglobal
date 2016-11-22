@@ -35,11 +35,16 @@ class Api(object):
         self.store_id = store_id
         self.secret_key = secret_key
         self.base_url = "https://api.iglobalstores.com/v1/{0}"
+        self.v2base_url = "https://api.iglobalstores.com/v2/{0}"
 
-    def _callAPI(self, path, data):
+    def _callAPI(self, path, data, version=None):
         data.update({'store': self.store_id})
         data.update({'secret': self.secret_key})
-        response = requests.post(self.base_url.format(path), json=data)
+
+        if version == 'v2':
+            response = requests.post(self.v2base_url.format(path), json=data)
+        else:
+            response = requests.post(self.base_url.format(path), json=data)    
 
         if response.status_code == 200:
             return response.content
@@ -123,7 +128,7 @@ class Api(object):
         else:
             raise iGlobalException('order_id or reference_id is required.')
 
-        api_data = self._callAPI('orderDetail', data)
+        api_data = self._callAPI('orderDetail', data, "v2")
         product = json.loads(api_data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
 
         return product.order
