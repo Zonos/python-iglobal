@@ -16,7 +16,7 @@ def read_file(filename):
 setup(
     name='python-iglobal',
     version=iglobal.__version__,
-    author='Ridley Larsen',
+    author='Iglobal Stores',
     author_email='ridley@iglobalstores.com',
     keywords='iglobal api',
     packages=find_packages(exclude=['tests*']),

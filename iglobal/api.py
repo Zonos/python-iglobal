@@ -21,7 +21,7 @@ class Api(object):
     STATUS_VENDOR_CANCEL = "VENDOR_CANCELLATION_REQUEST" # The order has been requested for cancellation. *Settable by: Vendor
     STATUS_VENDOR_COMPLETE = "VENDOR_END_OF_DAY_COMPLETE" # The order is finalized and complete. *Settable by: Vendor
 
-    def __init__(self, store_id=None, secret_key=None, *args, **kwargs):
+    def __init__(self, store_id=None, secret_key=None, production=True, *args, **kwargs):
         '''
             Instantiates a new iGlobal API object.
         '''
@@ -34,8 +34,12 @@ class Api(object):
 
         self.store_id = store_id
         self.secret_key = secret_key
-        self.base_url = "https://api.iglobalstores.com/v1/{0}"
-        self.v2base_url = "https://api.iglobalstores.com/v2/{0}"
+        if production:
+            self.base_url = "https://api.iglobalstores.com/v1/{0}"
+            self.v2base_url = "https://api.iglobalstores.com/v2/{0}"
+        else:
+            self.base_url = "https://api-test.iglobalstores.com/v1/{0}"
+            self.v2base_url = "https://api-test.iglobalstores.com/v2/{0}"
 
     def _callAPI(self, path, data, version=None):
         data.update({'store': self.store_id})

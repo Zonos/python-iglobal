@@ -4,7 +4,7 @@ from iglobal.exceptions import iGlobalException
 
 class ApiTest(unittest.TestCase):
     def setUp(self):
-        self.api = iglobal.Api(store_id=0, secret_key="secret key")
+        self.api = iglobal.Api(store_id=0, secret_key="secret key", production=False)
 
     def test_all_orders(self):
         pass
@@ -41,7 +41,7 @@ class ApiTest(unittest.TestCase):
 
     def test_create_temp_cart(self):
         # test incorrect argument set
-        self.assertRaises(iGlobalException, self.api.create_temp_cart)
+        self.assertRaises(TypeError, self.api.create_temp_cart)
         # test empty data
         data = {}
         self.assertRaises(iGlobalException, self.api.create_temp_cart, data=data)
