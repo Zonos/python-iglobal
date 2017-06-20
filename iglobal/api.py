@@ -1,3 +1,4 @@
+import datetime
 import json
 import requests
 import six
@@ -9,7 +10,7 @@ from .exceptions import iGlobalException, iGlobalUnauthorizedException
 class Api(object):
     """
     API object to store and handle all requests through the iGlobal REST API,
-    Refer to https://developer.iglobalstores.com/api/1.0/ for responses and expected data
+    Refer to https://developer.iglobalstores.com/api for responses and expected data
     """
     STATUS_FRAUD = "IGLOBAL_FRAUD_REVIEW" # The order is currently under fraud review by iGlobal. *Settable by: iGlobal System
     STATUS_PROCESS = "IGLOBAL_ORDER_IN_PROCESS" # The order is valid and ready for processing. *Settable by: iGlobal System
@@ -62,9 +63,9 @@ class Api(object):
         return date.strftime('%Y%m%d')
 
     def all_orders(self):
-        return self.order_numbers(since_date='20000101')
+        return self.order_numbers(since_date=datetime.datetime.now() - datetime.timedelta(7), missingOrderId=True)
 
-    def order_numbers(self, since_order_id=None, since_date=None, through_date=None):
+    def order_numbers(self, since_order_id=None, since_date=None, through_date=None, statuses=False, missingOrderId=False):
         '''
             Fetch a sequence of order numbers in a date range, or all orders
             after a specific Order ID.
@@ -81,6 +82,11 @@ class Api(object):
                 through_date:
                     Optional end date for the filter. If specified, the results
                     will not include orders that occur after that date.
+                missingOrderId
+                    Boolean to exclude orders that have a merchantOrderId submitted through the 
+                    update_merchant_order_id method.
+                statuses
+                    Boolean to include the current status and status date
         '''
         data = {}
         if since_order_id is not None:
@@ -96,7 +102,12 @@ class Api(object):
         else:
             raise iGlobalException('since_order_id or since_date is required.')
 
+        if statuses:
+            data['statuses'] = True
+        if missingOrderId:
+            data['missingMerchantOrderId'] = True
         api_data = self._callAPI('orderNumbers', data)
+
         products = json.loads(api_data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
 
         return products
