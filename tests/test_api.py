@@ -4,7 +4,7 @@ from iglobal.exceptions import iGlobalException
 
 class ApiTest(unittest.TestCase):
     def setUp(self):
-        self.api = iglobal.Api(store_id=0, secret_key="secret key", production=False)
+        self.api = iglobal.Api(store_id=0, secret_key="secret key")
 
     def test_all_orders(self):
         pass
